@@ -15,17 +15,7 @@ namespace ApplicationEndpoints
     {
         public static void Main(string[] args)
         {
-            // create csv file
-            string staffFileName = @"C:\stafflist.csv";
-
-            if (!File.Exists(staffFileName))
-            {
-                string staffFileHeader = "Id , FirstName , LastName , Email ID , role" + Environment.NewLine;
-                string data = "1 , sara , tom , saratom@email.com , teaching" + Environment.NewLine;
-
-                File.WriteAllText(staffFileName, staffFileHeader);
-                File.AppendAllText(staffFileName, data);
-            }
+      
             CreateHostBuilder(args).Build().Run();
 
         

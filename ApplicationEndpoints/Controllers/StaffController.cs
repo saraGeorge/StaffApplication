@@ -14,7 +14,48 @@ namespace ApplicationEndpoints.Controllers
     [ApiController]
     public class StaffController : ControllerBase
     {
-       
+
+        private ApplicationDBContext.StaffDBContext _context;
+
+        public StaffController(ApplicationDBContext.StaffDBContext context)
+        {
+
+            _context = context;
+            if (!_context.Staffs.Any())
+            {
+                _context.Staffs.Add(new Staff
+                {
+                    id = 1,
+                    firstname = "sara",
+                    lastname = "tom",
+                    emailId = "saratom@gmail.com",
+                    role = "teaching"
+                });
+
+                _context.Staffs.Add(new Staff
+                {
+                    id = 2,
+                    firstname = "maria",
+                    lastname = "james",
+                    emailId = "mariajames@gmail.com",
+                    role = "admin"
+                });
+
+                _context.Staffs.Add(new Staff
+                {
+                    id = 3,
+                    firstname = "serin",
+                    lastname = "jones",
+                    emailId = "serinjones@gmail.com",
+                    role = "hr"
+                });
+
+                _context.SaveChanges();
+            }
+
+
+        }
+
         // GET: api/<ValuesController>
         [HttpGet]
         public ActionResult<Staff> Get()
@@ -23,10 +64,10 @@ namespace ApplicationEndpoints.Controllers
             // fetch files from csv file
             try
             {
-                return Ok(StaffDetailsFromFile.getStaffDetailsFromFile());
+                return Ok(_context.Staffs);
 
             }
-            catch (Exception exception)
+            catch
             {
                 return NotFound();
             }
@@ -34,27 +75,89 @@ namespace ApplicationEndpoints.Controllers
 
         // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult Get(int id)
         {
-            return "value";
+            try
+            {
+                Staff staffById = _context.Staffs.Single(staff => staff.id == id);
+                return Ok(staffById);
+
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         // POST api/<ValuesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Staff staff)
         {
+            try
+            {
+                _context.Staffs.Add(staff);
+                _context.SaveChanges();
+                return CreatedAtRoute("Get", new { id = staff.id }, staff);
+
+            }
+            catch
+            {
+                return Conflict();
+            }
         }
 
         // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, [FromBody] Staff staff)
         {
+            try
+            {
+                Staff staffById = _context.Staffs.Single(staff => staff.id == id);
+                if(staffById == null)
+                {
+                    return NotFound();
+                }
+               
+                    staffById.id = staff.id;
+                    staffById.lastname = staff.lastname;
+                    staffById.firstname = staff.firstname;
+                    staffById.emailId = staff.emailId;
+                    staffById.role = staff.role;
+
+                    _context.Staffs.Update(staffById);
+                    _context.SaveChanges();
+                    return new NoContentResult();
+                
+                
+
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         // DELETE api/<ValuesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            try
+            {
+                Staff staffById = _context.Staffs.Single(staff => staff.id == id);
+                if (staffById == null)
+                {
+                    return NotFound();
+                }
+                
+                _context.Staffs.Remove(staffById);
+                _context.SaveChanges();
+                return Ok();
+
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
     }
 }
